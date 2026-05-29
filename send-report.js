@@ -1,5 +1,5 @@
 const WH = "https://ecostyle.bitrix24.eu/rest/4/mc0jnypsq03nu8qu/";
-const RECIPIENTS = [4,10442,15,15912,2114,25210,34808,101,97,75,105,24388];
+const CHAT_ID = "chat284994";
 
 async function bx(m,p={}){const r=await fetch(WH+m,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok)throw new Error(m+": HTTP "+r.status);return r.json();}
 async function bxAll(m,p={},k=null){let a=[],s=0;while(true){const d=await bx(m,{...p,start:s});let i=d.result;if(k&&i&&i[k])i=i[k];if(Array.isArray(i))a=a.concat(i);if(!d.next)break;s=d.next;}return a;}
@@ -14,6 +14,8 @@ function getReportDate(){
   const y=rd.getFullYear(),mo=String(rd.getMonth()+1).padStart(2,"0"),da=String(rd.getDate()).padStart(2,"0");
   return{ds:`${y}-${mo}-${da}`,dd:`${da}.${mo}.${y}`,dow};
 }
+
+function f(v){return v?` ${v} `:` - `;}
 
 async function main(){
   const{ds,dd,dow}=getReportDate();
@@ -51,32 +53,17 @@ async function main(){
   const total=Object.keys(um).length;
   const pct=total?Math.round(active.length/total*100):0;
 
-  let sent=0;
-  for(const uid of RECIPIENTS){
-    const uidStr=String(uid);
-    const sorted=[...active].sort((a,b)=>{
-      if(a.id===uidStr)return-1;if(b.id===uidStr)return 1;
-      return(b.cr+b.cx+b.ct+b.cm+b.ch+b.wk)-(a.cr+a.cx+a.ct+a.cm+a.ch+a.wk);
-    });
-    if(sorted.length===0)continue;
+  const sorted=[...active].sort((a,b)=>(b.cr+b.cx+b.ct+b.cm+b.ch+b.wk)-(a.cr+a.cx+a.ct+a.cm+a.ch+a.wk));
 
-    let msg=`[B]📊 Активність команди в Битрикс24 за ${dd}[/B]\nАктивних: ${active.length} з ${total} (${pct}%)\n\n📝створено задач ✅виконано задач 🔒закрито задач 💼CRM 💬дописів к задачам 📂оброблено задач\n\n`;
-    sorted.forEach((u,i)=>{
-      const me=u.id===uidStr;
-      const pre=me?"➡️ ":`${i+1}. `;
-      const b=me?"[B]":"";const be=me?"[/B]":"";
-      const s=[];
-      if(u.cr)s.push("📝"+u.cr);if(u.cx)s.push("✅"+u.cx);if(u.ct)s.push("🔒"+u.ct);
-      if(u.cm)s.push("💼"+u.cm);if(u.ch)s.push("💬"+u.ch);if(u.wk)s.push("📂"+u.wk);
-      msg+=`${pre}${b}${u.nm}${be}: ${s.join(" ")}\n`;
-    });
+  let lines=[];
+  sorted.forEach((u,i)=>{
+    const pre=i===0?`1. [B]${u.nm}[/B]`:`${i+1}. ${u.nm}`;
+    lines.push(`${pre}:   📝${f(u.cr)} ✅${f(u.cx)} 🔒${f(u.ct)} 💼${f(u.cm)} 💬${f(u.ch)} 📂${f(u.wk)}`);
+  });
 
-    try{
-      await bx("im.notify.system.add",{USER_ID:uidStr,MESSAGE:msg});
-      sent++;
-      await new Promise(r=>setTimeout(r,100));
-    }catch(e){console.error("Failed",uid,e.message);}
-  }
-  console.log("Sent",sent,"reports for",dd);
+  const msg=`[B]📊 Активність команди в Битрикс24 за ${dd}[/B]\nАктивних співробітників: ${active.length} з ${total} (${pct}%)\n\n📝 створено задач\n✅ виконано задач\n🔒 закрито задач\n💼 CRM\n💬 дописів к задачам\n📂 редагування задач\n\n${lines.join("\n")}`;
+
+  await bx("im.message.add",{DIALOG_ID:CHAT_ID,MESSAGE:msg,SYSTEM:"Y"});
+  console.log("Sent report to group chat for",dd);
 }
 main().catch(e=>{console.error(e);process.exit(1);});
