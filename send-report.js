@@ -1,5 +1,5 @@
 const WH = "https://ecostyle.bitrix24.eu/rest/4/mc0jnypsq03nu8qu/";
-const RECIPIENTS = [4,15,15912,2114,25210,34808,101,145,97,75,105,24388];
+const RECIPIENTS = [4,10442,15,15912,2114,25210,34808,101,145,97,75,105,24388];
 
 async function bx(m,p={}){const r=await fetch(WH+m,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok)throw new Error(m+": HTTP "+r.status);return r.json();}
 async function bxAll(m,p={},k=null){let a=[],s=0;while(true){const d=await bx(m,{...p,start:s});let i=d.result;if(k&&i&&i[k])i=i[k];if(Array.isArray(i))a=a.concat(i);if(!d.next)break;s=d.next;}return a;}
