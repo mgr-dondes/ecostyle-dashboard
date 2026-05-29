@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Активність команди — Ecostyle</title>
+<script src="//api.bitrix24.com/api/v1/"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f1629;color:#e8eaf6;min-height:100vh;display:flex;justify-content:center;padding:16px}
+.container{max-width:1100px;width:100%}
+#setup{background:#1a2038;border-radius:16px;padding:40px;text-align:center;margin-top:40px;display:none}
+#setup h2{font-size:24px;margin-bottom:8px}
+#setup>p{color:#8892b0;margin-bottom:24px}
+#setup input{width:100%;padding:14px 16px;background:#0f1629;border:1px solid #2a3050;border-radius:8px;color:#e8eaf6;font-size:15px;margin-bottom:16px}
+#setup input:focus{outline:none;border-color:#00d4aa}
+#setup button{background:#00d4aa;color:#0f1629;border:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer}
+.hint{margin-top:24px;text-align:left;background:#0f1629;padding:20px;border-radius:8px;font-size:13px;color:#8892b0;line-height:2}
+.hint code{background:#2a3050;padding:2px 6px;border-radius:4px;color:#4fc3f7}
+#dashboard{display:none}
+.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.hdr h1{font-size:20px;font-weight:600}
+.hdr .m{color:#8892b0;font-size:12px}
+.hdr .b{background:none;border:1px solid #2a3050;color:#8892b0;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:12px}
+.hdr .b:hover{border-color:#00d4aa;color:#00d4aa}
+.si{font-size:11px;color:#555;margin-top:3px}
+.top{display:flex;align-items:center;gap:32px;margin-bottom:20px;padding:24px;background:#1a2038;border-radius:14px;flex-wrap:wrap}
+.ga{position:relative;width:130px;height:130px;flex-shrink:0}
+.ga svg{width:130px;height:130px;transform:rotate(-90deg)}
+.ga-bg{fill:none;stroke:#2a3050;stroke-width:9}
+.ga-f{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.ga-t{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.ga-p{font-size:28px;font-weight:700}
+.ga-l{font-size:10px;color:#8892b0}
+.sg{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;flex:1;text-align:center}
+.sb .v{font-size:20px;font-weight:700}
+.sb .n{font-size:10px;color:#8892b0;margin-top:1px}
+.sb .i{font-size:16px;margin-bottom:2px}
+.eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:20px}
+.ec{background:#1a2038;border-radius:10px;padding:12px;text-align:center}
+.ec:hover{transform:translateY(-1px)}
+.ec.a{border:1px solid rgba(0,212,170,.3)}
+.ec.i{border:1px solid rgba(239,83,80,.15);opacity:.55}
+.ea{width:44px;height:44px;border-radius:50%;margin:0 auto 6px;overflow:hidden;border:2px solid #2a3050}
+.ec.a .ea{border-color:#00d4aa}
+.ea img{width:100%;height:100%;object-fit:cover}
+.ea .ph{width:100%;height:100%;background:#2a3050;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:#8892b0}
+.en{font-size:12px;font-weight:600}
+.ep{font-size:9px;color:#8892b0;margin-bottom:6px}
+.es{display:grid;grid-template-columns:repeat(6,1fr);font-size:9px;color:#8892b0;gap:1px}
+.es .v{font-weight:700;font-size:12px;color:#e8eaf6}
+.es .cr .v{color:#4caf50}
+.es .cx .v{color:#00d4aa}
+.es .ct .v{color:#26a69a}
+.es .cm .v{color:#4fc3f7}
+.es .ch .v{color:#ffb74d}
+.es .wk .v{color:#ce93d8}
+.ld{text-align:center;padding:50px;color:#8892b0}
+.sp{width:36px;height:36px;border:3px solid #2a3050;border-top-color:#00d4aa;border-radius:50%;animation:s .8s linear infinite;margin:0 auto 12px}
+@keyframes s{to{transform:rotate(360deg)}}
+.er{background:rgba(239,83,80,.1);border:1px solid rgba(239,83,80,.3);border-radius:8px;padding:14px;color:#ef5350;text-align:center;margin:16px 0;font-size:13px}
+.ft{text-align:center;padding:12px;font-size:11px}
+.ft a{color:#8892b0;cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="setup">
+    <h2>Налаштування дашборду</h2>
+    <p>Вставте URL вебхука Бітрікс24</p>
+    <input type="text" id="wi" placeholder="https://ecostyle.bitrix24.eu/rest/1/abc123xyz/" />
+    <br><button onclick="saveWH()">Підключити</button>
+    <div class="hint"><strong>Дозволи вебхука:</strong> <code>user</code> <code>task</code> <code>crm</code> <code>im</code></div>
+  </div>
+  <div id="dashboard">
+    <div class="hdr">
+      <div><h1>Активність команди</h1><div class="si" id="schi"></div></div>
+      <div style="display:flex;align-items:center;gap:10px"><span class="m" id="upd"></span><button class="b" onclick="load()">Оновити</button></div>
+    </div>
+    <div id="dc"><div class="ld"><div class="sp"></div>Завантаження...</div></div>
+    <div class="ft"><a onclick="resetWH()">Змінити вебхук</a></div>
+  </div>
+</div>
+<script>
+var MODE='none',WH='',BD='https://ecostyle.bitrix24.eu';
+(function(){var d=false,t=setTimeout(function(){if(!d){d=true;iwh();}},2500);try{if(typeof BX24!=='undefined'&&BX24.init){BX24.init(function(){if(!d){d=true;clearTimeout(t);MODE='bx24';BD=BX24.getDomain?('https://'+BX24.getDomain()):'';sh('dashboard');load();sch();}});}else{clearTimeout(t);d=true;iwh();}}catch(e){clearTimeout(t);d=true;iwh();}})();
+function iwh(){MODE='webhook';WH=localStorage.getItem('bx24w3')||'';if(WH){BD=new URL(WH).origin;sh('dashboard');load();sch();}else sh('setup');}
+function saveWH(){var u=document.getElementById('wi').value.trim();if(!u)return;if(!u.endsWith('/'))u+='/';WH=u;BD=new URL(u).origin;localStorage.setItem('bx24w3',u);sh('dashboard');load();sch();}
+function resetWH(){localStorage.removeItem('bx24w3');WH='';sh('setup');}
+function sh(id){document.getElementById('setup').style.display=id==='setup'?'block':'none';document.getElementById('dashboard').style.display=id==='dashboard'?'block':'none';}
+var st=null;function isBH(){var n=new Date(),d=n.getDay(),h=n.getHours();return d>=1&&d<=5&&h>=8&&h<19;}
+function sch(){if(st)clearInterval(st);st=setInterval(function(){if(isBH()&&new Date().getMinutes()<10)load();},600000);var e=document.getElementById('schi');if(e)e.textContent=isBH()?'Авто-оновлення щогодини (8–17, Пн–Пт)':'Поза робочим часом';}
+function wc(m,p){return fetch(WH+m,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p||{})}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});}
+function wa(m,p,k){return new Promise(function(res,rej){var a=[],s=0;(function f(){wc(m,Object.assign({},p,{start:s})).then(function(d){var i=d.result;if(k&&i&&i[k])i=i[k];if(Array.isArray(i))a=a.concat(i);if(d.next){s=d.next;f();}else res(a);}).catch(rej);})();});}
+
+async function load(){
+  var el=document.getElementById('dc');
+  el.innerHTML='<div class="ld"><div class="sp"></div>Завантаження...</div>';
+  try{
+    var n=new Date(),td=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+    var WHUID=WH.split('/rest/')[1]?WH.split('/rest/')[1].split('/')[0]:'4';
+    var r=await Promise.all([
+      wa('user.get',{filter:{ACTIVE:true,USER_TYPE:'employee'}}),
+      wa('tasks.task.list',{filter:{'>=CREATED_DATE':td},select:['id','createdBy']},'tasks'),
+      wa('tasks.task.list',{filter:{'>=CLOSED_DATE':td,STATUS:5},select:['id','responsibleId','createdBy','closedBy']},'tasks'),
+      wa('tasks.task.list',{filter:{'>=CHANGED_DATE':td},select:['id','responsibleId','createdBy','changedBy']},'tasks'),
+      wa('crm.activity.list',{filter:{'>=CREATED':td+'T00:00:00'},select:['ID','RESPONSIBLE_ID','AUTHOR_ID']}),
+      wc('im.recent.get',{}).catch(function(){return{result:[]};})
+    ]);
+    var users=r[0],cre=r[1],comp=r[2],chg=r[3],crm=r[4],imD=r[5];
+    var imI=Array.isArray(imD.result)?imD.result:(imD.result&&imD.result.items?imD.result.items:[]);
+    var tChat=imI.filter(function(i){return i.message&&i.message.date&&String(i.message.date).indexOf(td)>=0;});
+
+    // Chat: count actual MESSAGES per user (not just conversations)
+    var chatU={};var totalMsgs=0;
+    // For each today conversation, get messages and count per author
+    var chatPromises=tChat.map(function(c){
+      var did=c.type==='user'?String(c.id):'chat'+String(c.chat_id||c.id);
+      return wc('im.dialog.messages.get',{DIALOG_ID:did,LIMIT:50}).then(function(mr){
+        var msgs=(mr.result&&mr.result.messages)||[];
+        msgs.forEach(function(m){
+          if(m.date&&String(m.date).indexOf(td)>=0){
+            var a=String(m.author_id||'');
+            if(a&&a!=='0'){chatU[a]=(chatU[a]||0)+1;totalMsgs++;}
+          }
+        });
+      }).catch(function(){});
+    });
+    await Promise.all(chatPromises);
+
+    var um={};
+    users.forEach(function(u){var id=String(u.ID);um[id]={id:id,nm:((u.NAME||'')+' '+(u.LAST_NAME||'')).trim(),ph:u.PERSONAL_PHOTO||'',po:u.WORK_POSITION||'',cr:0,cx:0,ct:0,cm:0,ch:0,wk:0,ac:false};});
+
+    // Створено задач
+    cre.forEach(function(t){var u=String(t.createdBy||'');if(u&&um[u])um[u].cr++;});
+
+    // Виконано задач (як виконавець) + Закрито як контролер
+    comp.forEach(function(t){
+      var resp=String(t.responsibleId||'');
+      var creator=String(t.createdBy||'');
+      var closer=String(t.closedBy||'');
+      // Виконано задач = task completed, user is responsible (executor)
+      if(resp&&um[resp])um[resp].cx++;
+      // Закрито як контролер = user is creator but NOT responsible, and task was closed
+      if(creator&&creator!==resp&&um[creator])um[creator].ct++;
+    });
+
+    // Задач оброблено
+    var uT={};chg.forEach(function(t){var tid=String(t.id||'');[t.responsibleId,t.createdBy,t.changedBy].forEach(function(v){var u=String(v||'');if(u&&um[u]){if(!uT[u])uT[u]={};uT[u][tid]=1;}});});
+    for(var uid in uT)if(um[uid])um[uid].wk=Object.keys(uT[uid]).length;
+
+    // CRM
+    crm.forEach(function(a){[a.RESPONSIBLE_ID,a.AUTHOR_ID].forEach(function(v){var u=String(v||'');if(u&&um[u])um[u].cm++;});});
+
+    // Дописів к задачам
+    for(var uid in chatU)if(um[uid])um[uid].ch=chatU[uid];
+
+    var ac=0,tu=Object.keys(um).length,ls=[],totCr=cre.length,totCx=0,totCt=0,totCrm=crm.length,totChat=totalMsgs,totWk=0;
+    for(var id in um){var u=um[id];u.ac=u.cr>0||u.cx>0||u.ct>0||u.wk>0||u.cm>0||u.ch>0;if(u.ac)ac++;totCx+=u.cx;totCt+=u.ct;totWk+=u.wk;ls.push(u);}
+    ls.sort(function(a,b){if(a.ac!==b.ac)return b.ac?1:-1;return(b.cr+b.cx+b.ct+b.wk+b.cm+b.ch)-(a.cr+a.cx+a.ct+a.wk+a.cm+a.ch);});
+    var pct=tu?Math.round(ac/tu*100):0;
+    render({users:ls,pct:pct,ac:ac,tu:tu,totCr:totCr,totCx:totCx,totCt:totCt,totCrm:totCrm,totChat:totChat,totWk:totWk});
+    document.getElementById('upd').textContent=n.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){console.error(e);el.innerHTML='<div class="er">'+e.message+'</div>';}
+}
+
+function render(d){
+  var R=52,C=2*Math.PI*R,o=C-(d.pct/100)*C;
+  var co=d.pct>=75?'#00d4aa':d.pct>=50?'#4fc3f7':d.pct>=25?'#ffb74d':'#ef5350';
+  var h='<div class="top"><div class="ga"><svg viewBox="0 0 120 120"><circle class="ga-bg" cx="60" cy="60" r="'+R+'"/><circle class="ga-f" cx="60" cy="60" r="'+R+'" stroke="'+co+'" stroke-dasharray="'+C+'" stroke-dashoffset="'+o+'"/></svg><div class="ga-t"><div class="ga-p" style="color:'+co+'">'+d.pct+'%</div><div class="ga-l">'+d.ac+'/'+d.tu+'</div></div></div>';
+  h+='<div class="sg">';
+  h+='<div class="sb"><div class="i">📝</div><div class="v" style="color:#4caf50">'+d.totCr+'</div><div class="n">Створено задач</div></div>';
+  h+='<div class="sb"><div class="i">✅</div><div class="v" style="color:#00d4aa">'+d.totCx+'</div><div class="n">Виконано задач</div></div>';
+  h+='<div class="sb"><div class="i">🔒</div><div class="v" style="color:#26a69a">'+d.totCt+'</div><div class="n">Закрито задач</div></div>';
+  h+='<div class="sb"><div class="i">💼</div><div class="v" style="color:#4fc3f7">'+d.totCrm+'</div><div class="n">CRM</div></div>';
+  h+='<div class="sb"><div class="i">💬</div><div class="v" style="color:#ffb74d">'+d.totChat+'</div><div class="n">Дописів к задачам</div></div>';
+  h+='<div class="sb"><div class="i">📂</div><div class="v" style="color:#ce93d8">'+d.totWk+'</div><div class="n">Оброблено задач</div></div>';
+  h+='</div></div><div class="eg">';
+  d.users.forEach(function(u){
+    var c=u.ac?'a':'i',ini=u.nm.split(/\s+/).map(function(w){return(w[0]||'');}).join('').toUpperCase();
+    var p=u.ph;if(p&&p.indexOf('http')!==0)p=BD+p;
+    var av=p?'<img src="'+p+'" onerror="this.outerHTML=\'<div class=ph>'+ini+'</div>\'">':'<div class="ph">'+ini+'</div>';
+    h+='<div class="ec '+c+'"><div class="ea">'+av+'</div><div class="en">'+u.nm+'</div><div class="ep">'+u.po+'</div>';
+    h+='<div class="es">';
+    h+='<div class="cr"><div class="v">'+u.cr+'</div>📝</div>';
+    h+='<div class="cx"><div class="v">'+u.cx+'</div>✅</div>';
+    h+='<div class="ct"><div class="v">'+u.ct+'</div>🔒</div>';
+    h+='<div class="cm"><div class="v">'+u.cm+'</div>💼</div>';
+    h+='<div class="ch"><div class="v">'+u.ch+'</div>💬</div>';
+    h+='<div class="wk"><div class="v">'+u.wk+'</div>📂</div>';
+    h+='</div></div>';
+  });
+  h+='</div>';document.getElementById('dc').innerHTML=h;
+}
+</script>
+</body>
+</html>
