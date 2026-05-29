@@ -72,7 +72,7 @@ async function main(){
     });
 
     try{
-      await bx("im.message.add",{DIALOG_ID:uidStr,MESSAGE:msg,SYSTEM:"Y"});
+      await bx("im.notify.system.add",{USER_ID:uidStr,MESSAGE:msg});
       sent++;
       await new Promise(r=>setTimeout(r,100));
     }catch(e){console.error("Failed",uid,e.message);}
