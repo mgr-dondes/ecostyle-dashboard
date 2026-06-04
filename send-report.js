@@ -36,6 +36,18 @@ async function main(){
   if(dow===0||dow===6){console.log("Weekend skip");return;}
   console.log("Report for",ds);
 
+  // Dedup: check if report already sent today
+  try {
+    const lastMsgs = await bx("im.dialog.messages.get",{DIALOG_ID:CHAT_ID,LIMIT:3});
+    const msgs = (lastMsgs.result && lastMsgs.result.messages) || [];
+    for (const m of msgs) {
+      if ((m.text||"").includes(dd)) {
+        console.log("Report for",dd,"already sent today. Skipping.");
+        return;
+      }
+    }
+  } catch(e) { /* continue if check fails */ }
+
   // Cutoff: exclude tasks with deadline before current year
   const year=new Date().getFullYear();
   const CUTOFF=`${year}-01-01T00:00:00`;
